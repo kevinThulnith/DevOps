@@ -6,6 +6,8 @@ from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import AllowAny
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from .permissions import UserPermissions
 from dotenv import load_dotenv
 from .models import User
@@ -17,6 +19,17 @@ load_dotenv()
 logger = logging.getLogger(__name__)  # !Configure logging
 
 # TODO: Create user views.
+
+
+class HealthCheckView(APIView):
+    """
+    Health check endpoint for Kubernetes probes.
+    Does not require authentication or ALLOWED_HOSTS validation.
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        return Response({"status": "healthy"})
 
 
 class UserViewSet(ModelViewSet):
