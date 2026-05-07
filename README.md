@@ -134,6 +134,12 @@ Non-sensitive configuration:
 
 ### Deploy to Kubernetes
 
+enable  NGINX Ingress on local pc with docker desktop
+
+```sh
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/cloud/deploy.yaml
+```
+
 ```sh
 # Build container images first (required for local images)
 docker compose build
