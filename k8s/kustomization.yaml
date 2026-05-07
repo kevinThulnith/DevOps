@@ -13,3 +13,4 @@ resources:
   - frontend.yaml
   - backend.yaml
   - proxy.yaml
+  - ingress.yaml

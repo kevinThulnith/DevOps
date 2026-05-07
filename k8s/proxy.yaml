@@ -15,7 +15,6 @@ spec:
       labels:
         app: fms-prod-proxy
     spec:
-      # Wait for frontend build to complete
       initContainers:
         - name: wait-for-frontend
           image: busybox:1.35
@@ -95,12 +94,11 @@ metadata:
   name: fms-prod-proxy
   namespace: fms-prod
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: fms-prod-proxy
   ports:
     - name: http
       port: 80
       targetPort: 80
-      nodePort: 30080
       protocol: TCP
