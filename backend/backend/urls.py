@@ -1,9 +1,8 @@
 from django.conf.urls.static import static
 from django.urls import path, include
-from django.http import JsonResponse
 from django.contrib import admin
 from django.conf import settings
-from main.views import MeView
+from main.views import MeView, HealthCheckView
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -20,7 +19,7 @@ urlpatterns = [
     path("api/token/blacklist/", TokenBlacklistView.as_view(), name="blacklist_token"),
     path(
         "api/health/",
-        lambda request: JsonResponse({"status": "healthy"}),
+        HealthCheckView.as_view(),
         name="health_check",
     ),
     # !User URLs
