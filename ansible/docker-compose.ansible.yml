@@ -1,44 +1,32 @@
-# ansible/docker-compose.learn.yml
-# Local learning environment — two containers simulating control + managed node
-
 name: ansible
 
 services:
   control:
-    image: ubuntu:22.04
+    build: ./control # uses the Dockerfile above
     container_name: ansible-control
-    stdin_open: true
+    stdin_open: true # keep if you need interactive exec
     tty: true
     volumes:
-      - .:/ansible # mounts your ansible/ folder into the container
+      - .:/ansible
     working_dir: /ansible
-    command: >
-      bash -c "
-        apt-get update -qq &&
-        apt-get install -y ansible openssh-client python3 python3-pip sshpass -qq &&
-        pip install docker docker-compose -q &&
-        bash
-      "
     networks:
       - ansible-net
+    depends_on:
+      managed:
+        condition: service_healthy
 
   managed:
-    image: ubuntu:22.04
+    build: ./managed
     container_name: ansible-managed
     stdin_open: true
     tty: true
-    command: >
-      bash -c "
-        apt-get update -qq &&
-        apt-get install -y openssh-server python3 sudo -qq &&
-        useradd -m -s /bin/bash ubuntu &&
-        echo 'ubuntu:ubuntu' | chpasswd &&
-        echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers &&
-        mkdir -p /run/sshd &&
-        /usr/sbin/sshd -D
-      "
     networks:
       - ansible-net
+    healthcheck:
+      test: ["CMD-SHELL", "ss -tlnp | grep -q :22"]
+      interval: 2s
+      timeout: 2s
+      retries: 10
 
 networks:
   ansible-net:
