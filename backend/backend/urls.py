@@ -1,8 +1,8 @@
+from main.views import MeView, HealthCheckView
 from django.conf.urls.static import static
 from django.urls import path, include
 from django.contrib import admin
 from django.conf import settings
-from main.views import MeView, HealthCheckView
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
