@@ -14,3 +14,4 @@ resources:
   - backend.yaml
   - proxy.yaml
   - ingress.yaml
+  - network-policies.yaml

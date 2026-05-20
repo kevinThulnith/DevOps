@@ -11,6 +11,6 @@ data:
   REDIS_PORT: "6379"
   DEBUG: "False"
   API_PORT: "8000"
-  CORS_ORIGINS: "http://fms.prod.com,https://fms.prod.com,http://localhost,http://host.docker.internal,http://host.docker.internal:80"
+  CORS_ORIGINS: "https://fms.prod.com,http://fms.prod.com,http://localhost,http://host.docker.internal,http://host.docker.internal:80"
   ALLOWED_HOSTS: "fms.prod.com,fms-prod-backend,fms-prod-backend.fms-prod,fms-prod-backend.fms-prod.svc.cluster.local,localhost,127.0.0.1"
-  GOOGLE_CALLBACK_URL: "http://fms.prod.com,http://localhost"
+  GOOGLE_CALLBACK_URL: "https://fms.prod.com,http://fms.prod.com,http://localhost"

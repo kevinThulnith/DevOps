@@ -23,3 +23,4 @@ testsprite_tests/
 backend/static/
 
 k8s/secrets.yaml
+*.pem

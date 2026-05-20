@@ -4,10 +4,22 @@ metadata:
   name: fms-prod-ingress
   namespace: fms-prod
   annotations:
+    # Adjust maximum allowed upload body size (useful for file uploads)
     nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    # Timeout settings
     nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    # Automatically forces non-SSL (http) requests to redirect to secure HTTPS
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # Rate limiting configuration to prevent local overload
+    nginx.ingress.kubernetes.io/limit-connections: "10"
+    nginx.ingress.kubernetes.io/limit-rps: "20"
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+        - fms.prod.com
+      # Matches the local TLS secret created using mkcert
+      secretName: fms-tls-secret
   rules:
     - host: fms.prod.com
       http:
@@ -16,6 +28,7 @@ spec:
             pathType: Prefix
             backend:
               service:
+                # Routes traffic directly to your reverse proxy setup
                 name: fms-prod-proxy
                 port:
                   number: 80

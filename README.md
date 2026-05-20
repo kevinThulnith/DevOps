@@ -98,34 +98,34 @@ Non-sensitive configuration:
 
 #### PersistentVolumeClaims
 
-| PVC Name                    | Size | Access Mode     | Used By   |
-| --------------------------- | ---- | --------------- | --------- |
-| `fms-prod-database-data`    | 1Gi  | ReadWriteOnce   | Postgres  |
-| `fms-prod-database-logs`    | 1Gi  | ReadWriteOnce   | Postgres  |
-| `fms-prod-redis-data`       | 1Gi  | ReadWriteOnce   | Redis     |
-| `fms-prod-redis-logs`       | 1Gi  | ReadWriteOnce   | Redis     |
-| `fms-prod-backend-media`    | 1Gi  | ReadWriteOnce   | Backend   |
-| `fms-prod-backend-logs`     | 1Gi  | ReadWriteOnce   | Backend   |
-| `fms-prod-frontend-dist`    | 1Gi  | ReadWriteOnce   | Frontend → Proxy |
+| PVC Name                 | Size | Access Mode   | Used By          |
+| ------------------------ | ---- | ------------- | ---------------- |
+| `fms-prod-database-data` | 1Gi  | ReadWriteOnce | Postgres         |
+| `fms-prod-database-logs` | 1Gi  | ReadWriteOnce | Postgres         |
+| `fms-prod-redis-data`    | 1Gi  | ReadWriteOnce | Redis            |
+| `fms-prod-redis-logs`    | 1Gi  | ReadWriteOnce | Redis            |
+| `fms-prod-backend-media` | 1Gi  | ReadWriteOnce | Backend          |
+| `fms-prod-backend-logs`  | 1Gi  | ReadWriteOnce | Backend          |
+| `fms-prod-frontend-dist` | 1Gi  | ReadWriteOnce | Frontend → Proxy |
 
 #### Deployments & Services
 
-| Component  | Kind       | Replicas | Image                  | Service Type | Exposed Port |
-| ---------- | ---------- | -------- | ---------------------- | ------------ | ------------ |
-| PostgreSQL | Deployment | 1        | `postgres:14-alpine`   | ClusterIP    | 5432         |
-| Redis      | Deployment | 1        | `redis:7-alpine`       | ClusterIP    | 6379         |
-| Backend    | Deployment | 2        | `fms-prod-fms-prod-backend:latest` | ClusterIP | 8000 |
-| Frontend   | Job        | —        | `fms-prod-fms-prod-frontend:latest` | —         | —            |
-| Proxy      | Deployment | 2        | `fms-prod-fms-prod-proxy:latest`   | NodePort   | 80 → 30080   |
+| Component  | Kind       | Replicas | Image                               | Service Type | Exposed Port |
+| ---------- | ---------- | -------- | ----------------------------------- | ------------ | ------------ |
+| PostgreSQL | Deployment | 1        | `postgres:14-alpine`                | ClusterIP    | 5432         |
+| Redis      | Deployment | 1        | `redis:7-alpine`                    | ClusterIP    | 6379         |
+| Backend    | Deployment | 2        | `fms-prod-fms-prod-backend:latest`  | ClusterIP    | 8000         |
+| Frontend   | Job        | —        | `fms-prod-fms-prod-frontend:latest` | —            | —            |
+| Proxy      | Deployment | 2        | `fms-prod-fms-prod-proxy:latest`    | NodePort     | 80 → 30080   |
 
 #### Health Probes
 
-| Component  | Startup Probe         | Readiness Probe       | Liveness Probe        |
-| ---------- | --------------------- | --------------------- | --------------------- |
-| PostgreSQL | —                     | `pg_isready` (10s)    | `pg_isready` (30s)    |
-| Redis      | —                     | `redis-cli ping` (5s) | `redis-cli ping` (20s)|
-| Backend    | `GET /api/health/`    | `GET /api/health/`    | `GET /api/health/`    |
-| Proxy      | —                     | `GET /health` (5s)    | `GET /health` (20s)   |
+| Component  | Startup Probe      | Readiness Probe       | Liveness Probe         |
+| ---------- | ------------------ | --------------------- | ---------------------- |
+| PostgreSQL | —                  | `pg_isready` (10s)    | `pg_isready` (30s)     |
+| Redis      | —                  | `redis-cli ping` (5s) | `redis-cli ping` (20s) |
+| Backend    | `GET /api/health/` | `GET /api/health/`    | `GET /api/health/`     |
+| Proxy      | —                  | `GET /health` (5s)    | `GET /health` (20s)    |
 
 #### Init Containers
 
@@ -134,11 +134,38 @@ Non-sensitive configuration:
 
 ### Deploy to Kubernetes
 
-enable  NGINX Ingress on local pc with docker desktop
+On windows with Docker Desktop, create a kind cluster with 1 node. (**The following will succeed only this setup.**) Use the following command to deploy the ingress controller:
 
 ```sh
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/cloud/deploy.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
 ```
+
+Then install mkcert via winget powershell to create a local CA.
+
+```sh
+# Install via Winget (Windows Package Manager)
+winget install FiloSottile.mkcert
+
+# Restart your PowerShell window, then initialize the local CA
+mkcert -install
+```
+create and inject SSL certificates into the Kubernetes cluster.
+
+```sh
+#create namespace
+kubectl apply -f k8s/namespace.yaml
+
+#create secrets
+mkcert fms.prod.com localhost
+
+# create tls secret
+kubectl create secret tls fms-tls-secret `
+  --cert=fms.prod.com+1.pem `
+  --key=fms.prod.com+1-key.pem `
+  -n fms-prod
+```
+
+Container images must be built first (required for local images).
 
 ```sh
 # Build container images first (required for local images)
@@ -156,7 +183,7 @@ kubectl get pods -n fms-prod -w
 # Check logs for a specific pod
 kubectl logs -n fms-prod -f <pod-name>
 
-# port forward and access 
+# port forward and access
 kubectl port-forward service/fms-prod-proxy 8080:80 -n fms-prod
 ```
 

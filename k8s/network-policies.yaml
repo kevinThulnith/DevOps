@@ -1,0 +1,75 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-to-proxy
+  namespace: fms-prod
+spec:
+  podSelector:
+    matchLabels:
+      app: fms-prod-proxy
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+      ports:
+        - port: 80
+  policyTypes:
+    - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-proxy-to-backend
+  namespace: fms-prod
+spec:
+  podSelector:
+    matchLabels:
+      app: fms-prod-backend
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: fms-prod-proxy
+      ports:
+        - port: 8000
+  policyTypes:
+    - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-backend-to-db-database
+  namespace: fms-prod
+spec:
+  podSelector:
+    matchLabels:
+      app: fms-prod-database # apply to postgres
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: fms-prod-backend
+      ports:
+        - port: 5432
+  policyTypes:
+    - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-backend-to-db-redis
+  namespace: fms-prod
+spec:
+  podSelector:
+    matchLabels:
+      app: fms-prod-redis
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: fms-prod-backend
+      ports:
+        - port: 6379
+  policyTypes:
+    - Ingress
