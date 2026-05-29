@@ -21,9 +21,7 @@ if settings.DEBUG:
 
 
 class HealthCheckMiddleware:
-    """
-    Bypass ALLOWED_HOSTS validation for health check endpoint.
-    """
+    "Bypass ALLOWED_HOSTS validation for health check endpoint."
 
     def __init__(self, get_response):
         self.get_response = get_response
