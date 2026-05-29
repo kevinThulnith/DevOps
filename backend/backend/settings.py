@@ -94,7 +94,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "backend.middleware.HealthCheckMiddleware",
+    "backend.middleware.HealthCheckMiddleware",  # ?Must be first to bypass ALLOWED_HOSTS check
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
