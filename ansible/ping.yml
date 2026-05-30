@@ -1,0 +1,6 @@
+---
+- name: Test connectivity
+  hosts: managed
+  tasks:
+    - name: Ping the managed node
+      ping:
