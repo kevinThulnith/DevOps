@@ -112,11 +112,14 @@ docker-compose --env-file .env up --build -d
 # View logs
 docker compose logs -f
 
-# Stop all services
-docker compose down
+# Stop services
+docker-compose stop
+
+# Stop and remove all services
+docker-compose down
 
 # Stop and remove volumes (⚠️ destroys data)
-docker compose down -v
+docker-compose down -v
 ```
 
 ### Named Volumes
