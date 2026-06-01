@@ -6,7 +6,7 @@ metadata:
   labels:
     app: fms-prod-backend
 spec:
-  replicas: 2
+  replicas: 2 # !Change to your desired number of replicas
   selector:
     matchLabels:
       app: fms-prod-backend
@@ -87,6 +87,7 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 20
             timeoutSeconds: 5
+          # !Change to your desired CPU and memory requests/limits
           resources:
             requests:
               cpu: 500m

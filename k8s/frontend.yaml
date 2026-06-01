@@ -21,6 +21,7 @@ spec:
           volumeMounts:
             - name: frontend-dist
               mountPath: /frontend-dist
+          # !Change to your desired CPU and memory requests/limits
           resources:
             requests:
               cpu: 250m

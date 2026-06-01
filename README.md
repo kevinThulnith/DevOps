@@ -30,7 +30,9 @@ k8s/
 ├── redis.yaml           # Deployment + ClusterIP Service
 ├── backend.yaml         # Deployment (2 replicas) + ClusterIP Service
 ├── frontend.yaml        # Job (one-shot builder)
-└── proxy.yaml           # Deployment (2 replicas) + NodePort Service
+├── proxy.yaml           # Deployment (2 replicas) + ClusterIP Service
+├── ingress.yaml         # NGINX Ingress (TLS + rate limiting)
+└── network-policies.yaml # Restrictive pod-to-pod ingress rules
 ```
 
 ### Resource Details
@@ -116,7 +118,7 @@ Non-sensitive configuration:
 | Redis      | Deployment | 1        | `redis:7-alpine`                    | ClusterIP    | 6379         |
 | Backend    | Deployment | 2        | `fms-prod-fms-prod-backend:latest`  | ClusterIP    | 8000         |
 | Frontend   | Job        | —        | `fms-prod-fms-prod-frontend:latest` | —            | —            |
-| Proxy      | Deployment | 2        | `fms-prod-fms-prod-proxy:latest`    | NodePort     | 80 → 30080   |
+| Proxy      | Deployment | 2        | `fms-prod-fms-prod-proxy:latest`    | ClusterIP    | 80           |
 
 #### Health Probes
 
@@ -189,10 +191,10 @@ kubectl port-forward service/fms-prod-proxy 8080:80 -n fms-prod
 
 ### Access the Application
 
-The proxy service is exposed via **NodePort 30080**:
+The proxy service is exposed via the **NGINX Ingress** on:
 
 ```
-http://localhost:30080
+https://fms.prod.com
 ```
 
 ### Common Commands
@@ -225,7 +227,7 @@ kubectl port-forward svc/fms-prod-database 5432:5432 -n fms-prod
 
 | Component  | CPU Request | CPU Limit | Memory Request | Memory Limit |
 | ---------- | ----------- | --------- | -------------- | ------------ |
-| PostgreSQL | 500m        | 2         | 512Mi          | 2Gi          |
+| PostgreSQL | 500m        | 1         | 512Mi          | 1Gi          |
 | Redis      | 250m        | 1         | 256Mi          | 768Mi        |
 | Backend    | 500m        | 2         | 512Mi          | 2Gi          |
 | Frontend   | 250m        | 1         | 256Mi          | 1Gi          |
