@@ -19,3 +19,6 @@ To use it in GitLab, add these CI/CD variables in your project settings:
 3. `VITE_CLIENT_ID`
 
 The backend job uses SQLite during CI, so it does not need a separate database service for the test stage. The Docker build stage uses Docker-in-Docker so the images can be published from the pipeline.
+
+See repo in Gitlab: [GitLab](https://gitlab.com/kevinThulnith/DevOps)
+See repo in GitHub: [GitHub](https://github.com/kevinThulnith/DevOps)
