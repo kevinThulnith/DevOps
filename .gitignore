@@ -22,5 +22,7 @@ schema/*.jpg
 testsprite_tests/
 backend/static/
 
+# k8s
+k8s/metrics-server.yaml
 k8s/secrets.yaml
 *.pem

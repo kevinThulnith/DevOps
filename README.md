@@ -1,8 +1,10 @@
 # DevOps
 
-DevOps project with developer tool use.
+DevOps project with developer tool use. This branch contains the code for the project kubernetes deployment.
 
 ## Kubernetes
+
+This setup contains a separate namespace, 4 services, 4 deployments, and 1 ingress. Integrated with horizontal pod autoscaling and network policies.
 
 ### Prerequisites
 
@@ -21,17 +23,18 @@ All resources are deployed into the **`fms-prod`** namespace. The manifests use 
 
 ```
 k8s/
-├── kustomization.yaml   # Kustomize entry point
-├── namespace.yaml       # fms-prod namespace
-├── secrets.yaml         # Opaque secrets (DB creds, JWT, OAuth)
-├── configmap.yaml       # Non-sensitive config (hosts, ports, flags)
-├── pvcs.yaml            # PersistentVolumeClaims (7 × 1Gi)
-├── postgres.yaml        # Deployment + ClusterIP Service
-├── redis.yaml           # Deployment + ClusterIP Service
-├── backend.yaml         # Deployment (2 replicas) + ClusterIP Service
-├── frontend.yaml        # Job (one-shot builder)
-├── proxy.yaml           # Deployment (2 replicas) + ClusterIP Service
-├── ingress.yaml         # NGINX Ingress (TLS + rate limiting)
+├── kustomization.yaml    # Kustomize entry point
+├── namespace.yaml        # fms-prod namespace
+├── secrets.yaml          # Opaque secrets (DB creds, JWT, OAuth)
+├── configmap.yaml        # Non-sensitive config (hosts, ports, flags)
+├── pvcs.yaml             # PersistentVolumeClaims (7 × 1Gi)
+├── postgres.yaml         # Deployment + ClusterIP Service
+├── redis.yaml            # Deployment + ClusterIP Service
+├── backend.yaml          # Deployment (2 replicas) + ClusterIP Service
+├── frontend.yaml         # Job (one-shot builder)
+├── proxy.yaml            # Deployment (2 replicas) + ClusterIP Service
+├── ingress.yaml          # NGINX Ingress (TLS + rate limiting)
+├── hpa.yaml              # HorizontalPodAutoscaler for proxy and backend
 └── network-policies.yaml # Restrictive pod-to-pod ingress rules
 ```
 
@@ -138,9 +141,28 @@ Non-sensitive configuration:
 
 On windows with Docker Desktop, create a kind cluster with 1 node. (**The following will succeed only this setup.**) Use the following command to deploy the ingress controller:
 
+
+#### Deploy Ingress Controller
+
+Run the following command to deploy the ingress controller:
+
 ```sh
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
 ```
+
+#### Deploy Metrics server
+
+Run the following command to deploy the Metrics Server and patch it to bypass local TLS verification:
+
+```sh
+# Download and apply the official Metrics Server manifest
+kubectl apply -f [https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml](https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml)
+
+# Patch the deployment directly to bypass TLS verification issues within the local nodes
+kubectl patch deployment metrics-server -n kube-system --type='json' -p='[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "--kubelet-insecure-tls"}]'
+```
+
+#### Install mkcert
 
 Then install mkcert via winget powershell to create a local CA.
 

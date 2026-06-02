@@ -6,7 +6,7 @@ metadata:
   labels:
     app: fms-prod-proxy
 spec:
-  replicas: 2 # !Change to your desired number of replicas
+  # replicas is intentionally omitted — managed by fms-prod-proxy-hpa
   selector:
     matchLabels:
       app: fms-prod-proxy

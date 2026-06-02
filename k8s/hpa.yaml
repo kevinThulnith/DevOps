@@ -1,0 +1,83 @@
+# HorizontalPodAutoscaler — Backend (Django)
+# Scales between 1 and 2 replicas based on CPU and memory utilisation.
+# Requires metrics-server to be installed in the cluster.
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: fms-prod-backend-hpa
+  namespace: fms-prod
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: fms-prod-backend
+  minReplicas: 1
+  maxReplicas: 2
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70 # scale out when avg CPU > 70 % of request (500m)
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80 # scale out when avg memory > 80 % of request (512Mi)
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60 # react quickly to traffic spikes
+      policies:
+        - type: Pods
+          value: 1 # add at most 1 pod per period
+          periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300 # wait 5 min before scaling down (avoids flapping)
+      policies:
+        - type: Pods
+          value: 1 # remove at most 1 pod per period
+          periodSeconds: 120
+
+---
+# HorizontalPodAutoscaler — Proxy (Nginx)
+# Scales between 1 and 2 replicas. Proxy is lightweight so thresholds are higher.
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: fms-prod-proxy-hpa
+  namespace: fms-prod
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: fms-prod-proxy
+  minReplicas: 1
+  maxReplicas: 2
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70 # scale out when avg CPU > 70 % of request (100m)
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80 # scale out when avg memory > 80 % of request (128Mi)
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 30 # proxy should scale out faster than backend
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 120
