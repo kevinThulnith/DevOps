@@ -88,7 +88,9 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 VITE_CLIENT_ID=your-google-client-id
 ```
 
-## Docker
+## Docker-Compose
+
+This project uses Docker Compose to define and run multi-container Docker applications. 5 images are used in 5 separate services.
 
 ### Services
 
@@ -107,6 +109,7 @@ VITE_CLIENT_ID=your-google-client-id
 Run this to create docker-compose setup on pc.
 
 ```sh
+# Build | Start services in background
 docker-compose --env-file .env up --build -d
 
 # View logs
@@ -121,6 +124,8 @@ docker-compose down
 # Stop and remove volumes (⚠️ destroys data)
 docker-compose down -v
 ```
+
+Access the application at `http://localhost`.
 
 ### Named Volumes
 
