@@ -1,6 +1,6 @@
 # DevOps
 
-DevOps project with developer tool use.
+DevOps project with developer tool use. This branch the code for Jenjins CI/CD Pipeline to run on local device.
 
 ## Jenkins
 
@@ -20,6 +20,8 @@ to get jenkins instance password for log in.
 docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
 ```
 
+Access the Jenkins ui `localhost:8080`
+
 ### New Jenkins pipeline
 
 to create and run jenkins instance.
@@ -30,7 +32,6 @@ Before running the Jenkins pipeline, import the project `.env` into Jenkins via 
 2. Under **Global properties**, check **Environment variables**.
 3. Add each key/value from the project `.env` file.
 4. Save the configuration.
-
 
 ### Create a new Jenkins pipeline
 
