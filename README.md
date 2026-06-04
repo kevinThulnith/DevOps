@@ -21,7 +21,7 @@ kubectl cluster-info
 
 All resources are deployed into the **`fms-prod`** namespace. The manifests use [Kustomize](https://kustomize.io/) for orchestration.
 
-```
+```sh
 k8s/
 ├── kustomization.yaml    # Kustomize entry point
 ├── namespace.yaml        # fms-prod namespace
@@ -141,7 +141,6 @@ Non-sensitive configuration:
 
 On windows with Docker Desktop, create a kind cluster with 1 node. (**The following will succeed only this setup.**) Use the following command to deploy the ingress controller:
 
-
 #### Deploy Ingress Controller
 
 Run the following command to deploy the ingress controller:
@@ -173,6 +172,7 @@ winget install FiloSottile.mkcert
 # Restart your PowerShell window, then initialize the local CA
 mkcert -install
 ```
+
 create and inject SSL certificates into the Kubernetes cluster.
 
 ```sh
@@ -206,18 +206,11 @@ kubectl get pods -n fms-prod -w
 
 # Check logs for a specific pod
 kubectl logs -n fms-prod -f <pod-name>
-
-# port forward and access
-kubectl port-forward service/fms-prod-proxy 8080:80 -n fms-prod
 ```
 
 ### Access the Application
 
-The proxy service is exposed via the **NGINX Ingress** on:
-
-```
-https://fms.prod.com
-```
+The proxy service is exposed via the **NGINX Ingress** on: `https://fms.prod.com`.
 
 ### Common Commands
 
