@@ -180,13 +180,13 @@ create and inject SSL certificates into the Kubernetes cluster.
 kubectl apply -f k8s/namespace.yaml
 
 #create secrets
-mkcert fms.prod.com localhost
+mkcert fms.prod.com localhost 127.0.0.1 <device Ip> <device name>.local
 
 # create tls secret
 kubectl create secret tls fms-tls-secret `
-  --cert=fms.prod.com+1.pem `
-  --key=fms.prod.com+1-key.pem `
-  -n fms-prod
+   --cert=fms.prod.com+4.pem `
+   --key=fms.prod.com+4-key.pem `
+   -n fms-prod
 ```
 
 Container images must be built first (required for local images).

@@ -17,13 +17,15 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
+        # Matches the local TLS secret created using mkcert
         - fms.prod.com
-      # Matches the local TLS secret created using mkcert
+        - 192-168-8-134.nip.io # Add your IP here (eg: 192-168-8-134.nip.io)
+        - cyborg2k24.local # Add your local hostname here (eg: karen.local)
       secretName: fms-tls-secret
   rules:
     - host: fms.prod.com
       http:
-        paths:
+        paths: &paths
           - path: /
             pathType: Prefix
             backend:
@@ -32,3 +34,9 @@ spec:
                 name: fms-prod-proxy
                 port:
                   number: 80
+    - host: 192-168-8-134.nip.io
+      http:
+        paths: *paths
+    - host: cyborg2k24.local
+      http:
+        paths: *paths
