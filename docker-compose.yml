@@ -202,6 +202,167 @@ services:
           cpus: "0.5"
           memory: 512M
 
+  fms-prod-prometheus:
+    image: prom/prometheus:v2.52.0 # ~85MB, Alpine-based
+    container_name: fms-prod-prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=15d"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-lifecycle"
+    volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - fms-prod-prometheus-data:/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    networks:
+      - fms-prod-network
+    depends_on:
+      fms-prod-backend:
+        condition: service_healthy
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+        reservations:
+          cpus: "0.1"
+          memory: 128M
+
+  fms-prod-loki:
+    image: grafana/loki:3.0.0 # ~90MB, distroless
+    container_name: fms-prod-loki
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - "127.0.0.1:3100:3100"
+    networks:
+      - fms-prod-network
+    volumes:
+      - fms-prod-loki-data:/loki
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+        reservations:
+          cpus: "0.1"
+          memory: 128M
+
+  fms-prod-promtail:
+    image: grafana/promtail:3.0.0 # ~75MB, distroless
+    container_name: fms-prod-promtail
+    command: -config.file=/etc/promtail/promtail.yml
+    volumes:
+      - ./observability/promtail/promtail.yml:/etc/promtail/promtail.yml:ro
+      - fms-prod-backend-logs:/app/logs:ro # same named volume as backend
+    networks:
+      - fms-prod-network
+    depends_on:
+      - fms-prod-loki
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
+        reservations:
+          cpus: "0.05"
+          memory: 64M
+
+  fms-prod-grafana:
+    image: grafana/grafana-oss:11.0.0 # ~280MB, Alpine-based, OSS = smallest official
+    container_name: fms-prod-grafana
+    env_file:
+      - .env
+    volumes:
+      - ./observability/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./observability/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - fms-prod-grafana-data:/var/lib/grafana
+    ports:
+      - "127.0.0.1:3000:3000"
+    networks:
+      - fms-prod-network
+    depends_on:
+      - fms-prod-prometheus
+      - fms-prod-loki
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+        reservations:
+          cpus: "0.1"
+          memory: 128M
+
+  # Optional but recommended: lightweight exporters
+  fms-prod-redis-exporter:
+    image: oliver006/redis_exporter:v1.61.0-alpine # ~10MB
+    container_name: fms-prod-redis-exporter
+    environment:
+      - REDIS_ADDR=redis://fms-prod-redis:6379
+    networks:
+      - fms-prod-network
+    depends_on:
+      - fms-prod-redis
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 32M
+
+  fms-prod-postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.15.0 # ~20MB, Alpine
+    container_name: fms-prod-postgres-exporter
+    environment:
+      - DATA_SOURCE_NAME=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@fms-prod-database:5432/${POSTGRES_DB}?sslmode=disable
+    networks:
+      - fms-prod-network
+    depends_on:
+      fms-prod-database:
+        condition: service_healthy
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 32M
+
 networks:
   fms-prod-network:
     driver: bridge
@@ -213,3 +374,7 @@ volumes:
   fms-prod-media-files:
   fms-prod-redis-data:
   fms-prod-logs:
+  # Volumes for observability
+  fms-prod-prometheus-data:
+  fms-prod-grafana-data:
+  fms-prod-loki-data:
