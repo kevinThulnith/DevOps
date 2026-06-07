@@ -1,0 +1,12 @@
+apiVersion: 1
+
+providers:
+  - name: default
+    orgId: 1
+    type: file
+    disableDeletion: false       # allow deleting provisioned dashboards from UI
+    updateIntervalSeconds: 30    # reload dashboards from disk every 30s (hot-reload)
+    allowUiUpdates: true         # allow editing provisioned dashboards from UI
+    options:
+      path: /etc/grafana/provisioning/dashboards
+      foldersFromFilesStructure: true

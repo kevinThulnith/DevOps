@@ -75,6 +75,7 @@ INSTALLED_APPS = [
     "channels",
     "corsheaders",
     "django_filters",
+    "django_prometheus",
     "whitenoise.runserver_nostatic",
     # !DJ REST Auth
     "dj_rest_auth",
@@ -94,6 +95,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "backend.middleware.HealthCheckMiddleware",  # ?Must be first to bypass ALLOWED_HOSTS check
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -109,6 +111,7 @@ MIDDLEWARE = [
     # !Custom Middleware
     "backend.middleware.CancelledErrorMiddleware",
     "backend.middleware.RequestTimeLoggingMiddleware",
+    "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
 ROOT_URLCONF = "backend.urls"
