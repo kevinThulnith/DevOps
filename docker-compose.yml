@@ -334,7 +334,8 @@ services:
     networks:
       - fms-prod-network
     depends_on:
-      - fms-prod-redis
+      fms-prod-redis:
+        condition: service_healthy
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -347,13 +348,31 @@ services:
   fms-prod-postgres-exporter:
     image: prometheuscommunity/postgres-exporter:v0.15.0 # ~20MB, Alpine
     container_name: fms-prod-postgres-exporter
-    environment:
-      - DATA_SOURCE_NAME=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@fms-prod-database:5432/${POSTGRES_DB}?sslmode=disable
+    env_file:
+      - .env
     networks:
       - fms-prod-network
     depends_on:
       fms-prod-database:
         condition: service_healthy
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 32M
+
+  fms-prod-nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:1.1.0
+    container_name: fms-prod-nginx-exporter
+    command:
+      - --nginx.scrape-uri=http://fms-prod-proxy:8080/stub_status
+    networks:
+      - fms-prod-network
+    depends_on:
+      - fms-prod-proxy
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
