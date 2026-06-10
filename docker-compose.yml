@@ -220,6 +220,10 @@ services:
     depends_on:
       fms-prod-backend:
         condition: service_healthy
+      fms-prod-redis:
+        condition: service_healthy
+      fms-prod-database:
+        condition: service_healthy
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -329,8 +333,8 @@ services:
   fms-prod-redis-exporter:
     image: oliver006/redis_exporter:v1.61.0-alpine # ~10MB
     container_name: fms-prod-redis-exporter
-    environment:
-      - REDIS_ADDR=redis://fms-prod-redis:6379
+    env_file:
+      - .env
     networks:
       - fms-prod-network
     depends_on:
@@ -372,7 +376,8 @@ services:
     networks:
       - fms-prod-network
     depends_on:
-      - fms-prod-proxy
+      fms-prod-proxy:
+        condition: service_healthy
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
