@@ -9,6 +9,13 @@ DevOps/
 ├── backend/          # Django REST API (Python / uv)
 ├── frontend/         # React + Vite + Tailwind CSS
 ├── proxy/            # Nginx reverse proxy
+├── observability/    # Monitoring and logging console
+│   ├── grafana/
+│   │   └── provisioning/
+│   │       ├── dashboards/
+│   │       └── datasources/
+│   ├── prometheus/
+│   └── promtail/
 ├── docker-compose.yml
 ├── .env              # have to create instuctions are provided
 └── README.md
@@ -86,6 +93,18 @@ GOOGLE_CALLBACK_URL=http://localhost
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 VITE_CLIENT_ID=your-google-client-id
+
+# Grafana Settings
+GF_SECURITY_ADMIN_USER=admin
+GF_SECURITY_ADMIN_PASSWORD=your-grafana-password
+GF_SERVER_ROOT_URL=http://localhost/grafana/
+GF_SERVER_SERVE_FROM_SUB_PATH=true
+
+# Postgres Exporter
+DATA_SOURCE_NAME=postgresql://DbUser:DbPassword@fms-prod-database:5432/DbName?sslmode=disable
+
+# Redis Exporter
+REDIS_ADDR=redis://fms-prod-redis:6379
 ```
 
 ## Docker-Compose
@@ -94,13 +113,17 @@ This project uses Docker Compose to define and run multi-container Docker applic
 
 ### Services
 
-| Service  | Image                | Port | Description                                 |
-| -------- | -------------------- | ---- | ------------------------------------------- |
-| Database | `postgres:14-alpine` | 5432 | PostgreSQL database with persistent storage |
-| Redis    | `redis:7-alpine`     | 6379 | In-memory cache (LRU eviction, AOF enabled) |
-| Backend  | Custom (Django)      | 8000 | Django REST API with Gunicorn               |
-| Frontend | Custom (Vite/React)  | —    | One-shot builder; outputs static assets     |
-| Proxy    | Custom (Nginx)       | 80   | Reverse proxy serving frontend & API routes |
+| Service    | Image                        | Port | Description                                 |
+| ---------- | ---------------------------- | ---- | ------------------------------------------- |
+| Database   | `postgres:14-alpine`         | 5432 | PostgreSQL database with persistent storage |
+| Redis      | `redis:7-alpine`             | 6379 | In-memory cache (LRU eviction, AOF enabled) |
+| Backend    | Custom (Django)              | 8000 | Django REST API with Gunicorn               |
+| Frontend   | Custom (Vite/React)          | —    | One-shot builder; outputs static assets     |
+| Proxy      | Custom (Nginx)               | 80   | Reverse proxy serving frontend & API routes |
+| Prometheus | `prom/prometheus:v2.52.0`    | 9090 | Metrics scraping and storage                |
+| Grafana    | `grafana/grafana-oss:11.0.0` | 3000 | Metrics dashboards (via /grafana/)          |
+| Loki       | `grafana/loki:3.0.0`         | 3100 | Log aggregation                             |
+| Promtail   | `grafana/promtail:3.0.0`     | —    | Log shipper from backend logs to Loki       |
 
 ### Prerequisites
 
@@ -126,17 +149,21 @@ docker-compose down -v
 ```
 
 Access the application at `http://localhost`.
+Access Grafana dashboards at `http://localhost/grafana/`
 
 ### Named Volumes
 
-| Volume                   | Used By          | Mount Path                                 |
-| ------------------------ | ---------------- | ------------------------------------------ |
-| `fms-prod-database-data` | Database         | `/var/lib/postgresql/data`                 |
-| `fms-prod-redis-data`    | Redis            | `/data`                                    |
-| `fms-prod-frontend-dist` | Frontend → Proxy | `/frontend-dist` → `/usr/share/nginx/html` |
-| `fms-prod-media-files`   | Backend → Proxy  | `/app/media`                               |
-| `fms-prod-backend-logs`  | Backend          | `/app/logs`                                |
-| `fms-prod-logs`          | Database, Redis  | Log directories                            |
+| Volume                     | Used By          | Mount Path                                 |
+| -------------------------- | ---------------- | ------------------------------------------ |
+| `fms-prod-database-data`   | Database         | `/var/lib/postgresql/data`                 |
+| `fms-prod-redis-data`      | Redis            | `/data`                                    |
+| `fms-prod-frontend-dist`   | Frontend → Proxy | `/frontend-dist` → `/usr/share/nginx/html` |
+| `fms-prod-media-files`     | Backend → Proxy  | `/app/media`                               |
+| `fms-prod-backend-logs`    | Backend          | `/app/logs`                                |
+| `fms-prod-logs`            | Database, Redis  | Log directories                            |
+| `fms-prod-prometheus-data` | Prometheus       | /prometheus                                |
+| `fms-prod-grafana-data`    | Grafana          | /var/lib/tgrafana                          |
+| `fms-prod-loki-data`       | Loki             | /loki                                      |
 
 ## Seed Sample Data
 
