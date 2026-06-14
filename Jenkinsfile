@@ -131,7 +131,7 @@ pipeline {
           script {
             // Only cleanup if we're not deploying
             if (!(env.BRANCH_NAME == 'jenkins' && params.DEPLOY == true)) {
-              sh 'docker compose down -v || true'
+              sh 'docker compose down || true'
             }
           }
         }
@@ -165,7 +165,7 @@ pipeline {
         if (env.BRANCH_NAME == 'jenkins' && params.DEPLOY == true) {
           echo "DEPLOY=true on jenkins branch: leaving stack running"
         } else {
-          sh 'docker compose down -v || true'
+          sh 'docker compose down || true'
         }
       }
       sh 'rm -f .env || true'
