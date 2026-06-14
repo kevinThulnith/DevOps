@@ -69,7 +69,7 @@ pipeline {
       }
       post {
         always {
-          sh 'docker compose down -v fms-prod-database fms-prod-redis || true'
+          sh 'docker compose down fms-prod-database fms-prod-redis || true'
         }
       }
     }
