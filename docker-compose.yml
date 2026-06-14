@@ -376,8 +376,7 @@ services:
     networks:
       - fms-prod-network
     depends_on:
-      fms-prod-proxy:
-        condition: service_healthy
+      - fms-prod-proxy
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
