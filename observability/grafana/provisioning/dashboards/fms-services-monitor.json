@@ -1,0 +1,71 @@
+{
+  "annotations": { "list": [] },
+  "description": "FMS Production — per-service monitoring with dropdown selectors",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "tags": ["fms", "production"],
+  "templating": {
+    "list": [
+      {
+        "current": { "selected": true, "text": "django", "value": "django" },
+        "description": "Django backend job",
+        "hide": 0,
+        "label": "Django Backend",
+        "name": "django_job",
+        "options": [
+          { "selected": true, "text": "django", "value": "django" }
+        ],
+        "query": "django",
+        "type": "custom"
+      },
+      {
+        "current": { "selected": true, "text": "postgres", "value": "postgres" },
+        "description": "PostgreSQL database job",
+        "hide": 0,
+        "label": "PostgreSQL Database",
+        "name": "postgres_job",
+        "options": [
+          { "selected": true, "text": "postgres", "value": "postgres" }
+        ],
+        "query": "postgres",
+        "type": "custom"
+      },
+      {
+        "current": { "selected": true, "text": "redis", "value": "redis" },
+        "description": "Redis cache job",
+        "hide": 0,
+        "label": "Redis",
+        "name": "redis_job",
+        "options": [
+          { "selected": true, "text": "redis", "value": "redis" }
+        ],
+        "query": "redis",
+        "type": "custom"
+      },
+      {
+        "current": { "selected": true, "text": "nginx", "value": "nginx" },
+        "description": "Nginx proxy job",
+        "hide": 0,
+        "label": "Nginx Proxy",
+        "name": "nginx_job",
+        "options": [
+          { "selected": true, "text": "nginx", "value": "nginx" }
+        ],
+        "query": "nginx",
+        "type": "custom"
+      }
+    ]
+  },
+  "time": { "from": "now-1h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "FMS Services Monitor",
+  "uid": "fms-services-monitor",
+  "version": 1
+}
