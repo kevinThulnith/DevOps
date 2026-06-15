@@ -89,7 +89,7 @@ pipeline {
       steps {
         sh '''
           set -e
-          docker compose up -d
+          docker compose up -d fms-prod-backend fms-prod-frontend fms-prod-proxy fms-prod-database fms-prod-redis
 
           backend_ready=0
           for i in $(seq 1 45); do
