@@ -224,6 +224,8 @@ services:
         condition: service_healthy
       fms-prod-database:
         condition: service_healthy
+      fms-prod-proxy:
+        condition: service_healthy
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -376,7 +378,8 @@ services:
     networks:
       - fms-prod-network
     depends_on:
-      - fms-prod-proxy
+      fms-prod-proxy:
+        condition: service_healthy
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
