@@ -1,0 +1,19 @@
+---
+- name: Gather system information
+  hosts: managed
+  tasks:
+    - name: Get uptime
+      command: uptime
+      register: uptime_result
+
+    - name: Show uptime
+      debug:
+        var: uptime_result.stdout
+
+    - name: Get disk usage
+      command: df -h
+      register: df_result
+
+    - name: Show disk usage
+      debug:
+        var: df_result.stdout_lines
