@@ -1,3 +1,5 @@
+![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?logo=kubernetes&logoColor=fff)](#)
+
 # DevOps
 
 DevOps project with developer tool use. This branch contains the code for the project kubernetes deployment.
