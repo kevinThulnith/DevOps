@@ -1,3 +1,6 @@
+![Jenkins](https://img.shields.io/badge/Jenkins-D24939?logo=jenkins&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=fff)
+
 # DevOps
 
 DevOps project with developer tool use. This branch the code for Jenjins CI/CD Pipeline to run on local device.
