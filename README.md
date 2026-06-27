@@ -19,6 +19,7 @@
 ![uv](https://img.shields.io/badge/uv-261230.svg?logo=uv&logoColor=#de5fe9)
 ![Ruff](https://custom-icon-badges.demolab.com/badge/Ruff-261230.svg?logo=ruff-logo)
 ![Postman](https://img.shields.io/badge/Postman-FF6C37?logo=postman&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?logo=github-actions&logoColor=white)
 
 # DevOps
 
