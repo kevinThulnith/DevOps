@@ -1,3 +1,25 @@
+![Django](https://img.shields.io/badge/Django-%23092E20.svg?logo=django&logoColor=white)
+![DRF](https://img.shields.io/badge/Django_REST-FF1709?logo=django&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-000000?logo=JSON%20web%20tokens)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?logo=postgresql&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-DC382D?logo=redis&logoColor=white)
+![React](https://img.shields.io/badge/React-%2320232a.svg?logo=react&logoColor=%2361DAFB)
+![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=fff)
+![Tailwind](https://img.shields.io/badge/Tailwind_CSS-38B2AC?logo=tailwind-css&logoColor=white)
+![Axios](https://img.shields.io/badge/Axios-5A29E4?logo=axios&logoColor=white)
+![NodeJS](https://img.shields.io/badge/Node.js-6DA55F?logo=node.js&logoColor=white)
+![npm](https://img.shields.io/badge/npm-CB3837?logo=npm&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
+![Nginx](https://img.shields.io/badge/Nginx-009639?logo=nginx&logoColor=white)
+![Google Cloud](https://img.shields.io/badge/Google%20Cloud-%234285F4.svg?logo=google-cloud&logoColor=white)
+![Bash](https://img.shields.io/badge/Bash-4EAA25?logo=gnubash&logoColor=fff)
+![Grafana](https://img.shields.io/badge/Grafana-F46800?logo=grafana&logoColor=white)
+![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?logo=prometheus&logoColor=white)
+![Loki](https://img.shields.io/badge/Loki-F46800?logo=grafana&logoColor=white)
+![uv](https://img.shields.io/badge/uv-261230.svg?logo=uv&logoColor=#de5fe9)
+![Ruff](https://custom-icon-badges.demolab.com/badge/Ruff-261230.svg?logo=ruff-logo)
+![Postman](https://img.shields.io/badge/Postman-FF6C37?logo=postman&logoColor=white)
+
 # DevOps
 
 DevOps project with developer tool use. This branch contains github action code.
