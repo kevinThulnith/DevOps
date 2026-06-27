@@ -1,3 +1,5 @@
+![GitLab](https://img.shields.io/badge/GitLab-FC6D26?logo=gitlab&logoColor=fff)
+
 # DevOps
 
 DevOps project with developer tool use. This branch includes a GitLab CI/CD starter for the repo.
