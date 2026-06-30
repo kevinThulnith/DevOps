@@ -343,6 +343,7 @@ services:
       fms-prod-redis:
         condition: service_healthy
     restart: unless-stopped
+    read_only: true
     security_opt:
       - no-new-privileges:true
     deploy:
@@ -362,6 +363,7 @@ services:
       fms-prod-database:
         condition: service_healthy
     restart: unless-stopped
+    read_only: true
     security_opt:
       - no-new-privileges:true
     deploy:
@@ -381,6 +383,7 @@ services:
       fms-prod-proxy:
         condition: service_healthy
     restart: unless-stopped
+    read_only: true
     security_opt:
       - no-new-privileges:true
     deploy:
