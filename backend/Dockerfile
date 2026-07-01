@@ -10,14 +10,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     UV_LINK_MODE=copy
 
 # Install ALL build + runtime deps here
-RUN apk add --no-cache \
-    build-base \
-    libffi-dev \
-    postgresql-dev \
-    jpeg-dev \
-    zlib-dev \
-    musl-dev \
-    brotli-dev
+RUN apk add --no-cache build-base libffi-dev postgresql-dev jpeg-dev zlib-dev
 
 # Install dependencies first (cached layer)
 RUN --mount=type=cache,target=/root/.cache/uv \
@@ -45,12 +38,7 @@ RUN find /app/.venv -type d -name "*.dist-info" -exec rm -rf {} + 2>/dev/null ||
 FROM python:3.14-alpine
 
 # Install only runtime dependencies (not build tools)
-RUN apk add --no-cache \
-    libffi \
-    libpq \
-    jpeg \
-    zlib \
-    brotli-libs
+RUN apk add --no-cache libffi libpq jpeg zlib
 
 # Create non-root user
 RUN adduser -D -s /bin/sh appuser && \
