@@ -92,7 +92,7 @@ function Navbar() {
 
             {/* Menu button */}
             <div className="lg:hidden" onClick={toggleMenu}>
-              <BsLayoutSidebarReverse className="text-stone-200 text-xl cursor-pointer" />
+              <BsLayoutSidebarReverse className="text-stone-200 text-xl cursor-pointer hover:text-white ease-linear" />
             </div>
           </div>
         </div>
@@ -113,7 +113,7 @@ function Navbar() {
             fixed top-14 right-0 h-[calc(100vh-3.5rem)] w-full sm:w-80 bg-card-main shadow-2xl
             transform transition-transform duration-300 ease-in-out
             ${isMenuOpen ? "translate-x-0" : "translate-x-full"}
-            flex flex-col p-4 z-50
+            flex flex-col p-4 z-50 
           `}
       >
         {/* Scrollable section */}
