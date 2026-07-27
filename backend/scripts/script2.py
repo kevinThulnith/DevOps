@@ -33,7 +33,7 @@ def create_departments():
                 supervisor=supervisor,
             ).save()
             print(f"✅ Created department: {department}")
-        except:
+        except Exception:
             print(f"⚠️ Department '{department}' already exists")
 
 
