@@ -78,7 +78,13 @@ jobs:
       - name: Run tests
         run: uv run python manage.py test --noinput
 
-      - name: Run Django deploy checks
+      - name: Run Django Checks
+        run: uv run python manage.py check
+
+      - name: Run Django Deploy Checks
+        run: uv run python manage.py check --deploy
+
+      - name: Run Django deploy checks with fail level
         run: uv run python manage.py check --deploy --fail-level=ERROR
 
   build-and-push:
