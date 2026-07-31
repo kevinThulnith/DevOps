@@ -423,7 +423,7 @@ class Machine(Model):
 
     @property
     def is_operational(self):
-        "Chek if machine is operational"
+        "Check if machine is operational"
         return self.status == self.Status.OPERATIONAL
 
     @property
