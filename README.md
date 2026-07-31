@@ -42,6 +42,6 @@ Before running the Jenkins pipeline, import the project `.env` into Jenkins via 
 2. Enter a name, select **Pipeline**, then click **OK**.
 3. In the job configuration, go to the **Pipeline** section.
 4. Choose **Pipeline script from SCM** (recommended) and set **SCM** to **Git**.
-5. Set the repository URL and branch (for example, the `jenkins` branch).
-6. Set **Script Path** to your Jenkinsfile (for example, `Jenkinsfile`).
+5. Set the repository URL and select the `jenkins` branch.
+6. Set **Script Path** to `Jenkinsfile`.
 7. Click **Save**, then **Build Now** to run the pipeline.
