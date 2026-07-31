@@ -122,7 +122,7 @@ class OrderMaterialPermission(PermissionBlock):
         if user.role == "PURCHASING":
             if request.method in SAFE_METHODS:
                 return True
-            # Allow create/update only on their own orders
+            # Allow to create/update only on their own orders
             return obj.order.created_by == user and request.method != "DELETE"
 
         if user.role == "SUPERVISOR":
