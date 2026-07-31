@@ -62,6 +62,22 @@ pipeline {
           export COMPOSE_DOCKER_CLI_BUILD=1
           docker compose build --pull fms-prod-backend
           docker compose up -d fms-prod-database fms-prod-redis
+
+          db_ready=0
+          for i in $(seq 1 30); do
+            if docker compose exec -T fms-prod-database pg_isready -q; then
+              db_ready=1
+              break
+            fi
+            sleep 2
+          done
+
+          if [ "$db_ready" -ne 1 ]; then
+            echo "Database did't become ready in time"
+            docker compose logs --no-color fms-prod-database || true
+            exit 1
+          fi
+
           docker compose run --rm --no-deps fms-prod-backend sh -c "
             /app/.venv/bin/python manage.py check &&
             /app/.venv/bin/python manage.py check --deploy &&
@@ -133,7 +149,7 @@ pipeline {
         always {
           script {
             // Only cleanup if we're not deploying
-            if (!(env.BRANCH_NAME == 'jenkins' && params.DEPLOY == true)) {
+            if (params.DEPLOY !== true) {
               sh 'docker compose down || true'
             }
           }
@@ -165,7 +181,7 @@ pipeline {
       sh 'docker compose logs --no-color > compose.log || true'
       archiveArtifacts artifacts: 'compose.log', allowEmptyArchive: true
       script {
-        if (env.BRANCH_NAME == 'jenkins' && params.DEPLOY == true) {
+        if (params.DEPLOY === true) {
           echo "DEPLOY=true on jenkins branch: leaving stack running"
         } else {
           sh 'docker compose down || true'
