@@ -91,7 +91,7 @@ class ProjectTaskViewSet(RBACCacheMixin):
         project_id = self.kwargs.get("project_pk")
         user = self.request.user
 
-        # !Get the base queryset for the project
+        # !Get the base QuerySet for the project
         tasks = Task.objects.filter(project_id=project_id)
 
         if user.role == "ADMIN":

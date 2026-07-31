@@ -3,7 +3,7 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from django.dispatch import receiver
 
-# TODO: Confgiuartion to fire signals on data changes
+# TODO: Configuration to fire signals on data changes
 
 
 class DummyRequest:
