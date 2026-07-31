@@ -127,7 +127,7 @@ class ProductionScheduleViewSet(RBACCacheMixin):
     Production Schedule API
     - Admins: Full CRUD access
     - Supervisor | MANAGER: Create | Read | Update their own schedules
-    - Operator: Read-only access in their owm department
+    - Operator: Read-only access in their own department
     """
 
     serializer_class = ProductionScheduleSerializer
