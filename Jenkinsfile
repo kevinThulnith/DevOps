@@ -48,6 +48,7 @@ pipeline {
               npm install --prefer-offline --no-audit --no-fund
             fi
             npm run lint
+            npm run build
           '
         '''
       }
@@ -63,6 +64,8 @@ pipeline {
           docker compose up -d fms-prod-database fms-prod-redis
           docker compose run --rm --no-deps fms-prod-backend sh -c "
             /app/.venv/bin/python manage.py check &&
+            /app/.venv/bin/python manage.py check --deploy &&
+            /app/.venv/bin/python manage.py check --deploy --fail-level=ERROR &&
             /app/.venv/bin/python manage.py migrate --noinput
           "
         '''
@@ -171,10 +174,10 @@ pipeline {
       sh 'rm -f .env || true'
     }
     success {
-      echo "Pipeline completed successfully"
+      echo "Pipeline completed successfully ✨"
     }
     failure {
-      echo "Pipeline failed - check logs for details"
+      echo "Pipeline failed ⚠️ - check logs for details"
     }
   }
 }
