@@ -44,16 +44,15 @@ class UserViewSet(ModelViewSet):
     permission_classes = [UserPermissions]
 
     def get_queryset(self):
-        """
-        Filter queryset based on user role
-        """
+        "Filter QuerySet based on user role"
+
         if self.request.user.role == "ADMIN":
             return User.objects.all()
 
         if self.request.user.role in {"SUPERVISOR", "MANAGER"}:
             return User.objects.filter(department=self.request.user.department)
 
-        # For other roles, return empty queryset
+        # For other roles, return empty QuerySet
         return User.objects.none()
 
 
