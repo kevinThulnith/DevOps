@@ -27,7 +27,7 @@ class MaterialPermission(BasePermissions):
     """
     Material permissions:
     - Admins: Full CRUD access
-    - Purchasing | Supervisors | Oparator | Manager : Read-only access
+    - Purchasing | Supervisors | Operator | Manager : Read-only access
     """
 
     def has_permission(self, request, view):

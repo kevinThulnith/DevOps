@@ -32,7 +32,7 @@ class ProductionLinePermission(PermissionBlock):
     - Supervisor: Only Create | Read | Update their department
     - Manager: Update operational_status in their workshop
     - Technician: Update operational_status
-    - Opators: Read-only access in their department
+    - Operator: Read-only access in their department
     """
 
     def has_permission(self, request, view):
@@ -68,7 +68,7 @@ class ProductionSchedulePermission(PermissionBlock):
     ProductionSchedule permissions:
     - Admins: Full CRUD access
     - Supervisor | MANAGER: Create | Read | Update their own schedules
-    - Operator: Read-only access in their owm department
+    - Operator: Read-only access in their own department
     """
 
     def has_permission(self, request, view):

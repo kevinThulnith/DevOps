@@ -16,13 +16,9 @@ class GoogleProvider(BaseGoogleProvider):
         return self.get_default_scope()
 
     def get_default_scope(self):
-        """
-        Return the default scope for Google OAuth.
-        """
+        "Return the default scope for Google OAuth."
         return ["email", "profile"]
 
     def get_scope(self, request):
-        """
-        Return the scope for the given request.
-        """
+        "Return the scope for the given request."
         return self.get_scope_from_request(request)
