@@ -31,10 +31,11 @@ to create and run jenkins instance.
 
 Before running the Jenkins pipeline, import the project `.env` into Jenkins via the GUI:
 
-1. Open Jenkins and go to **Manage Jenkins** → **System**.
-2. Under **Global properties**, check **Environment variables**.
-3. Add each key/value from the project `.env` file.
-4. Save the configuration.
+1. Open Jenkins and go to **Manage Jenkins** → **Credentials**.
+2. Press **Add Credentials** and select **Secret file**.
+3. Upload the project `.env` file as the secret file.
+4. Set the ID field to exactly `fms-env` (this is what the Jenkins File references — it must match exactly).
+5. Save the configuration.
 
 ### Create a new Jenkins pipeline
 
