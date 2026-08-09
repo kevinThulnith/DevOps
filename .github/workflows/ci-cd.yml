@@ -87,10 +87,119 @@ jobs:
       - name: Run Django deploy checks with fail level
         run: uv run python manage.py check --deploy --fail-level=ERROR
 
+  smoke-test:
+    name: Smoke Test
+    needs: [frontend-ci, backend-ci]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Write .env file
+        run: echo "${{ secrets.ENV_FILE }}" > .env
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build images
+        env:
+          DOCKER_BUILDKIT: "1"
+          COMPOSE_DOCKER_CLI_BUILD: "1"
+        run: docker compose build --pull
+
+      - name: Start database and redis
+        run: docker compose up -d fms-prod-database fms-prod-redis
+
+      - name: Wait for database
+        run: |
+          set -e
+          db_ready=0
+          for i in $(seq 1 30); do
+            if docker compose exec -T fms-prod-database pg_isready -q; then
+              db_ready=1
+              break
+            fi
+            sleep 2
+          done
+          if [ "$db_ready" -ne 1 ]; then
+            echo "Database didn't become ready in time"
+            docker compose logs --no-color fms-prod-database || true
+            exit 1
+          fi
+
+      - name: Django checks and migration
+        run: |
+          docker compose run --rm --no-deps fms-prod-backend sh -c "
+            /app/.venv/bin/python manage.py check &&
+            /app/.venv/bin/python manage.py check --deploy &&
+            /app/.venv/bin/python manage.py check --deploy --fail-level=ERROR &&
+            /app/.venv/bin/python manage.py migrate --noinput
+          "
+
+      - name: Start full stack
+        run: docker compose up -d fms-prod-backend fms-prod-frontend fms-prod-proxy fms-prod-database fms-prod-redis
+
+      - name: Wait for backend health
+        run: |
+          set -e
+          backend_ready=0
+          for i in $(seq 1 45); do
+            if docker compose exec -T fms-prod-backend wget --quiet --tries=1 --spider http://127.0.0.1:8000/api/health/; then
+              backend_ready=1
+              break
+            fi
+            sleep 2
+          done
+          if [ "$backend_ready" -ne 1 ]; then
+            echo "Backend health check failed"
+            docker compose ps
+            docker compose logs --no-color fms-prod-backend || true
+            exit 1
+          fi
+
+      - name: Wait for proxy health
+        run: |
+          set -e
+          proxy_ready=0
+          for i in $(seq 1 30); do
+            if docker compose exec -T fms-prod-proxy wget --quiet --tries=1 --spider http://127.0.0.1/health/; then
+              proxy_ready=1
+              break
+            fi
+            sleep 2
+          done
+          if [ "$proxy_ready" -ne 1 ]; then
+            echo "Proxy health check failed"
+            docker compose ps
+            docker compose logs --no-color fms-prod-proxy fms-prod-backend || true
+            exit 1
+          fi
+          echo "All health checks passed"
+
+      - name: Dump logs
+        if: always()
+        run: docker compose logs --no-color > compose.log || true
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compose-logs
+          path: compose.log
+          retention-days: 7
+
+      - name: Tear down
+        if: always()
+        run: docker compose down || true
+
+      - name: Remove .env
+        if: always()
+        run: rm -f .env || true
+
   build-and-push:
     name: Build and Push Docker Images
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [frontend-ci, backend-ci]
+    needs: [smoke-test]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
