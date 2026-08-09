@@ -96,7 +96,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Write .env file
-        run: echo "${{ secrets.ENV_FILE }}" > .env
+        run: |
+          cat << 'ENV_EOF' > .env
+          ${{ secrets.ENV_FILE }}
+          ENV_EOF
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -143,12 +146,12 @@ jobs:
         run: |
           set -e
           backend_ready=0
-          for i in $(seq 1 45); do
+          for i in $(seq 1 90); do
             if docker compose exec -T fms-prod-backend wget --quiet --tries=1 --spider http://127.0.0.1:8000/api/health/; then
               backend_ready=1
               break
             fi
-            sleep 2
+            sleep 3
           done
           if [ "$backend_ready" -ne 1 ]; then
             echo "Backend health check failed"
