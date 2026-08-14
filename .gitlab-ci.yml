@@ -1,5 +1,6 @@
 stages:
   - test
+  - smoke-test
   - build
 
 workflow:
@@ -57,6 +58,96 @@ backend-ci:
     - uv run python manage.py test --noinput
     - uv run python manage.py check --deploy --fail-level=ERROR
 
+smoke-test:
+  stage: smoke-test
+  image: docker:24.0.7
+  services:
+    - name: docker:24.0.7-dind
+      command: ["--tls=false"]
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_DRIVER: overlay2
+  needs:
+    - frontend-ci
+    - backend-ci
+  timeout: 20 minutes
+  before_script:
+    - echo "$ENV_FILE" > .env
+  script:
+    - docker compose build --pull
+    - docker compose up -d fms-prod-database fms-prod-redis
+
+    # Wait for database
+    - |
+      db_ready=0
+      for i in $(seq 1 30); do
+        if docker compose exec -T fms-prod-database pg_isready -q; then
+          db_ready=1
+          break
+        fi
+        sleep 2
+      done
+      if [ "$db_ready" -ne 1 ]; then
+        echo "Database didn't become ready in time"
+        docker compose logs --no-color fms-prod-database || true
+        exit 1
+      fi
+
+    # Django checks and migration
+    - |
+      docker compose run --rm --no-deps fms-prod-backend sh -c "
+        /app/.venv/bin/python manage.py check &&
+        /app/.venv/bin/python manage.py check --deploy &&
+        /app/.venv/bin/python manage.py check --deploy --fail-level=ERROR &&
+        /app/.venv/bin/python manage.py migrate --noinput
+      "
+
+    - docker compose up -d fms-prod-backend fms-prod-frontend fms-prod-proxy fms-prod-database fms-prod-redis
+
+    # Wait for backend health
+    - |
+      backend_ready=0
+      for i in $(seq 1 90); do
+        if docker compose exec -T fms-prod-backend wget --quiet --tries=1 --spider http://127.0.0.1:8000/api/health/; then
+          backend_ready=1
+          break
+        fi
+        sleep 3
+      done
+      if [ "$backend_ready" -ne 1 ]; then
+        echo "Backend health check failed"
+        docker compose ps
+        docker compose logs --no-color fms-prod-backend || true
+        exit 1
+      fi
+
+    # Wait for proxy health
+    - |
+      proxy_ready=0
+      for i in $(seq 1 30); do
+        if docker compose exec -T fms-prod-proxy wget --quiet --tries=1 --spider http://127.0.0.1/health/; then
+          proxy_ready=1
+          break
+        fi
+        sleep 2
+      done
+      if [ "$proxy_ready" -ne 1 ]; then
+        echo "Proxy health check failed"
+        docker compose ps
+        docker compose logs --no-color fms-prod-proxy fms-prod-backend || true
+        exit 1
+      fi
+      echo "All health checks passed"
+  after_script:
+    - docker compose logs --no-color > compose.log || true
+    - docker compose down || true
+  artifacts:
+    when: always
+    paths:
+      - compose.log
+    expire_in: 7 days
+
 build-and-push:
   stage: build
   image: docker:24.0.7
@@ -70,6 +161,7 @@ build-and-push:
   needs:
     - frontend-ci
     - backend-ci
+    - smoke-test
   before_script:
     - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
   script:
