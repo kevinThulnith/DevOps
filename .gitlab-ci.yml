@@ -73,7 +73,7 @@ smoke-test:
     - backend-ci
   timeout: 20 minutes
   before_script:
-    - echo "$ENV_FILE" > .env
+    - echo "$ENV_FILE" .env
   script:
     - docker compose build --pull
     - docker compose up -d fms-prod-database fms-prod-redis
