@@ -79,7 +79,7 @@ stringData:
   DATABASE_URL: "postgresql://<user>:<password>@fms-prod-database:5432/<dbname>"
 
   # Django
-  JWT_SECRET: "<your-jwt-secret>"
+  JWT_SECRET_KEY: "<your-jwt-secret>"
   SECRET_KEY: "<your-django-secret-key>"
 
   # Google OAuth
