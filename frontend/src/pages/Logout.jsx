@@ -17,15 +17,21 @@ function Logout() {
     if (refreshToken) {
       api
         .post("/api/token/blacklist/", { refresh: refreshToken })
-        .catch((err) =>
-          console.log(
-            err.response?.status === 401 ? "Token already blacklisted !!!" : err
-          )
-        );
-    }
+        .then(() => localStorage.clear())
+        .catch((err) => {
+          if (err.response?.status === 401) {
+            console.log("Token already blacklisted !!!");
+          } else {
+            console.error("Logout error:", err);
+          }
+        })
+        .finally(() => {
+          navigate("/login");
+          window.location.reload();
+        });
+    } else navigate("/login");
 
-    navigate("/login");
-    window.location.reload();
+
     return () => (didRunRef.current = false);
   }, [navigate]);
 
