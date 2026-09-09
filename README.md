@@ -23,7 +23,144 @@
 
 # DevOps
 
-DevOps project with developer tool use. This branch contains github action code.
+DevOps project with developer tool use. This branch contains main code + github action code. Built as a decoupled SPA + REST API system, containerized end-to-end, and shipped with a full observability stack.
+
+## Table of Contents
+
+- [Core Development Principles](#core-development-principles)
+- [Tech Stack](#tech-stack)
+- [System Architecture](#system-architecture)
+- [Security Model](#security-model)
+- [Project Architecture (Repo Layout)](#project-architecture)
+- [Setting Up Environment Variables](#setting-up-environment-variables)
+- [Docker Compose](#docker-compose)
+- [Seed Sample Data](#seed-sample-data)
+
+## Clone repo
+
+```sh
+git clone https://github.com/kevinThulnith/DevOps.git
+```
+
+## Core Development Principles
+
+These are the architectural and engineering principles the codebase is
+built around:
+
+- **Decoupled architecture** — the React SPA and Django API are entirely
+  separate services communicating over a well-defined REST/WebSocket
+  boundary, allowing each to scale and deploy independently.
+- **Real-time first** — Django Channels + Redis push live updates
+  (creates/updates/deletes) to connected clients over WebSockets, with
+  permission-filtered broadcasting so users only ever receive data they're
+  authorized to see.
+- **RESTful API design** — a consistent, resource-oriented API built with
+  Django REST Framework, using standard paginated list responses and
+  uniform error formats, designed to support both the SPA and future
+  third-party integrations.
+- **Automation over manual bookkeeping** — key operational workflows are
+  driven by business logic rather than manual steps: operator
+  auto-assignment/removal, dynamic role promotion on supervisor/manager
+  appointment, inventory quantity updates on order receipt, and automatic
+  labor allocation on task assignment.
+- **Security as a default, not an add-on** — short-lived rotating JWTs with
+  blacklisting, CSRF and CORS enforcement, DRF permission classes on every
+  endpoint, Nginx-level rate limiting and security headers, non-root
+  containers, and secrets managed exclusively via environment variables.
+- **Infrastructure as code / reproducible environments** — the entire
+  stack (app + observability) is defined in Docker Compose with
+  multi-stage builds, so `docker-compose up` produces an identical
+  environment anywhere.
+- **Consistent UI patterns** — every module follows the same page patterns
+  (List / Add / Edit / View), the same custom hooks for data fetching and
+  WebSocket state sync, and a single custom dark design system — no
+  external UI component library.
+- **Performance-conscious frontend** — lazy-loaded routes, memoized
+  derived state, callback optimization, and background token refresh to
+  avoid interrupting the user session.
+
+## Tech Stack
+
+### Backend
+
+| Technology            | Purpose                               |
+| --------------------- | ------------------------------------- |
+| Python                | Core programming language             |
+| Django                | Web framework                         |
+| Django REST Framework | RESTful API toolkit                   |
+| Django Channels       | WebSocket / async support             |
+| Daphne                | ASGI application server               |
+| PostgreSQL            | Primary relational database           |
+| Redis                 | WebSocket channel layer & caching     |
+| SimpleJWT             | JWT auth with rotation & blacklisting |
+| dj-rest-auth          | Auth REST endpoints                   |
+| django-allauth        | Google OAuth 2.0 social auth          |
+| django-cors-headers   | CORS control                          |
+| django-filter         | QuerySet filtering                    |
+| WhiteNoise            | Static file serving in production     |
+| Pillow                | Image processing for media files      |
+| uv                    | Fast Python package manager           |
+
+### Frontend
+
+| Technology          | Purpose                           |
+| ------------------- | --------------------------------- |
+| React               | UI component framework            |
+| Vite (SWC)          | Build tool / dev server           |
+| React Router DOM    | Client-side routing (40+ routes)  |
+| Axios               | HTTP client with interceptors     |
+| TailwindCSS         | Utility-first CSS                 |
+| Lucide React        | Primary icon library              |
+| React Icons         | Additional icon set               |
+| @react-oauth/google | Google OAuth frontend integration |
+| jwt-decode          | Client-side JWT parsing           |
+
+### Infrastructure & Observability
+
+| Technology                | Purpose                                                 |
+| ------------------------- | ------------------------------------------------------- |
+| Docker / Docker Compose   | Containerization & multi-container orchestration        |
+| Multi-stage Docker builds | Minimized, non-root production images                   |
+| Nginx 1.25 (Alpine)       | Reverse proxy, SPA hosting, static files, rate limiting |
+| Prometheus                | Metrics scraping and storage                            |
+| Grafana                   | Metrics dashboards                                      |
+| Loki + Promtail           | Log aggregation and shipping                            |
+| GitHub Actions            | CI/CD pipelines                                         |
+
+## System Architecture
+
+FMS follows a **decoupled architecture** — frontend and backend are
+independent services communicating over a defined API boundary.
+
+| Decision                 | Rationale                                         |
+| ------------------------ | ------------------------------------------------- |
+| Decoupled SPA + REST API | Independent scaling, clean separation of concerns |
+| Django Channels + Redis  | Real-time push updates via WebSockets             |
+| JWT authentication       | Stateless, scalable, works across services        |
+| Nginx as reverse proxy   | Single entry point, routing + static files        |
+| Docker Compose           | One command brings up the entire system           |
+
+**Real-time flow:** an event occurs → a Django signal fires → data is
+serialized → published to the relevant Redis channel group → the Redis
+channel layer fans it out to all subscribed Django Channels consumers →
+connected clients receive filtered, permission-aware updates instantly, no
+page refresh required.
+
+## Security Model
+
+- **Auth**: 30-minute JWT lifetimes with automatic rotation and refresh-token
+  blacklisting; Google OAuth2 via server-side authorization code exchange;
+  passwords hashed with PBKDF2/SHA256 (720,000 iterations).
+- **API**: CSRF protection on state-changing requests, CORS restricted to
+  allowed origins, Nginx rate limiting (10 req/s, burst 20), per-endpoint
+  DRF role permission classes.
+- **Infrastructure**: non-root container user, multi-stage builds that
+  exclude build tooling from production images, Nginx security headers
+  (`X-Frame-Options`, `X-Content-Type-Options`, `X-XSS-Protection`,
+  `server_tokens off`), sensitive file types blocked at the Nginx level,
+  all secrets via environment variables.
+- **WebSockets**: token-authenticated connections, invalid/expired tokens
+  rejected before any data exchange, permission-filtered message delivery.
 
 ## Project Architecture
 
@@ -40,15 +177,15 @@ DevOps/
 │   ├── prometheus/
 │   └── promtail/
 ├── docker-compose.yml
-├── .env              # have to create instuctions are provided
+├── .env              # have to create, instructions below
 └── README.md
 ```
 
-### Setting up environment variables
+## Setting Up Environment Variables
 
 The project requires a `.env` file before running in the project root directory. These files are **not committed** — create them manually.
 
-#### 🪄 Google OAuth Credentials
+### 🪄 Google OAuth Credentials
 
 Required for both Google sign-in and the `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `VITE_CLIENT_ID` variables.
 
@@ -70,11 +207,11 @@ Required for both Google sign-in and the `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SEC
    http://localhost:8000/accounts/google/login/callback/
    ```
 
-6. Click **Create** — copy the **Client ID** and **Client Secret** into the env files below.
+6. Click **Create** — copy the **Client ID** and **Client Secret** into the env file below.
 
 > Only email addresses that already exist as users in the system can sign in via Google. New Google accounts are rejected by the custom adapter.
 
-#### 🔑 Django Secret Key
+### 🔑 Django Secret Key
 
 Generate a secure key with (assuming python is installed):
 
@@ -82,7 +219,7 @@ Generate a secure key with (assuming python is installed):
 python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
 ```
 
-Create `.env` file in project root add these values.
+Create a `.env` file in the project root with these values:
 
 ```env
 # Postgres Settings
@@ -130,29 +267,31 @@ DATA_SOURCE_NAME=postgresql://DbUser:DbPassword@fms-prod-database:5432/DbName?ss
 REDIS_ADDR=redis://fms-prod-redis:6379
 ```
 
-## Docker-Compose
+## Docker Compose
 
-This project uses Docker Compose to define and run multi-container Docker applications. 5 images are used in 5 separate services.
+This project uses Docker Compose to define and run multi-container Docker applications.
 
 ### Services
 
-| Service    | Image                        | Port | Description                                 |
-| ---------- | ---------------------------- | ---- | ------------------------------------------- |
-| Database   | `postgres:14-alpine`         | 5432 | PostgreSQL database with persistent storage |
-| Redis      | `redis:7-alpine`             | 6379 | In-memory cache (LRU eviction, AOF enabled) |
-| Backend    | Custom (Django)              | 8000 | Django REST API with Gunicorn               |
-| Frontend   | Custom (Vite/React)          | —    | One-shot builder; outputs static assets     |
-| Proxy      | Custom (Nginx)               | 80   | Reverse proxy serving frontend & API routes |
-| Prometheus | `prom/prometheus:v2.52.0`    | 9090 | Metrics scraping and storage                |
-| Grafana    | `grafana/grafana-oss:11.0.0` | 3000 | Metrics dashboards (via /grafana/)          |
-| Loki       | `grafana/loki:3.0.0`         | 3100 | Log aggregation                             |
-| Promtail   | `grafana/promtail:3.0.0`     | —    | Log shipper from backend logs to Loki       |
+| Service           | Image                        | Port | Description                                 |
+| ----------------- | ---------------------------- | ---- | ------------------------------------------- |
+| Database          | `postgres:14-alpine`         | 5432 | PostgreSQL database with persistent storage |
+| Redis             | `redis:7-alpine`             | 6379 | In-memory cache (LRU eviction, AOF enabled) |
+| Backend           | Custom (Django)              | 8000 | Django REST API served by Daphne (ASGI)     |
+| Frontend          | Custom (Vite/React)          | —    | One-shot builder; outputs static assets     |
+| Proxy             | Custom (Nginx)               | 80   | Reverse proxy serving frontend & API routes |
+| Prometheus        | `prom/prometheus:v2.52.0`    | 9090 | Metrics scraping and storage                |
+| Grafana           | `grafana/grafana-oss:11.0.0` | 3000 | Metrics dashboards (via `/grafana/`)        |
+| Loki              | `grafana/loki:3.0.0`         | 3100 | Log aggregation                             |
+| Promtail          | `grafana/promtail:3.0.0`     | —    | Log shipper from backend logs to Loki       |
+| Postgres Exporter | —                            | —    | Exposes Postgres metrics to Prometheus      |
+| Redis Exporter    | —                            | —    | Exposes Redis metrics to Prometheus         |
 
 ### Prerequisites
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
 
-Run this to create docker-compose setup on pc.
+Run this to bring the stack up:
 
 ```sh
 # Build | Start services in background
@@ -172,7 +311,7 @@ docker-compose down -v
 ```
 
 Access the application at `http://localhost`.
-Access Grafana dashboards at `http://localhost/grafana/`
+Access Grafana dashboards at `http://localhost/grafana/`.
 
 ### Named Volumes
 
@@ -184,13 +323,13 @@ Access Grafana dashboards at `http://localhost/grafana/`
 | `fms-prod-media-files`     | Backend → Proxy  | `/app/media`                               |
 | `fms-prod-backend-logs`    | Backend          | `/app/logs`                                |
 | `fms-prod-logs`            | Database, Redis  | Log directories                            |
-| `fms-prod-prometheus-data` | Prometheus       | /prometheus                                |
-| `fms-prod-grafana-data`    | Grafana          | /var/lib/tgrafana                          |
-| `fms-prod-loki-data`       | Loki             | /loki                                      |
+| `fms-prod-prometheus-data` | Prometheus       | `/prometheus`                              |
+| `fms-prod-grafana-data`    | Grafana          | `/var/lib/grafana`                         |
+| `fms-prod-loki-data`       | Loki             | `/loki`                                    |
 
 ## Seed Sample Data
 
-Run the seed scripts **in order** inside the backend container. Each script populates a different part of the database with realistic sample data. They are backend/scripts.
+Run the seed scripts **in order** inside the backend container. Each script populates a different part of the database with realistic sample data. They live in `backend/scripts`.
 
 | Script     | Data seeded                  |
 | ---------- | ---------------------------- |
