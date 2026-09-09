@@ -2,6 +2,7 @@ from .models import ProductionLine, ProductionSchedule, ManufacturingProcess
 from inventory.serializers import MaterialConsumptionSerializer
 from inventory.models import MaterialConsumption
 from core.serializers import MachineSerializer
+
 from rest_framework.serializers import (
     SerializerMethodField,
     ModelSerializer,
