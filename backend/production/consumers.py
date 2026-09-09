@@ -1,4 +1,5 @@
 from backend.consumers import ConsumerBlock
+
 from .permissions import (
     ManufacturingProcessPermission,
     ProductionSchedulePermission,

@@ -1,6 +1,7 @@
 from django.db.models import JSONField, ManyToManyField, PositiveIntegerField
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
+
 from django.db.models import (
     DateTimeField,
     TextChoices,

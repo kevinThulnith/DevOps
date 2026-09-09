@@ -76,7 +76,7 @@ DATABASE_URL=postgresql://DbUser:DbPassword@fms-prod-database:5432/DbName
 # Backend Settings
 DEBUG=False
 API_PORT=8000
-JWT_SECRET=add-jwt-secret
+JWT_SECRET_KEY=add-jwt-secret
 SECRET_KEY=add-secret-key
 CORS_ORIGINS=http://localhost,http://host.docker.internal,http://host.docker.internal:80
 ALLOWED_HOSTS=localhost,host.docker.internal,127.0.0.1,localhost,localhost:5173,localhost:8000,127.0.0.1,127.0.0.1:8000,127.0.0.1:5173
