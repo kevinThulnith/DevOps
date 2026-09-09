@@ -1,6 +1,6 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
 from .views import LaborAllocationViewSet, SkillMatrixViewSet
+from rest_framework.routers import DefaultRouter
+from django.urls import path, include
 
 router = DefaultRouter()
 router.register(r"allocation", LaborAllocationViewSet, basename="labor-allocation")
