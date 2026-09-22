@@ -3,7 +3,7 @@ import axios from "axios";
 
 // !Create axios instance with base configuration
 const api = axios.create({
-  baseURL: "/",
+  baseURL: import.meta.env.VITE_API_URL,
   xsrfCookieName: "csrftoken",
   xsrfHeaderName: "X-CSRFToken",
 });
@@ -14,7 +14,7 @@ api.interceptors.request.use(
     // TODO: Add Authorization token
     const token = localStorage.getItem(ACCESS_TOKEN);
     if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${token}`;
     }
 
     // TODO: Add CSRF token only for mutation requests
