@@ -31,7 +31,6 @@ function Logout() {
         });
     } else navigate("/login");
 
-
     return () => (didRunRef.current = false);
   }, [navigate]);
 
