@@ -6,7 +6,7 @@ function useWebSocket(url, setData, fetchData) {
   useEffect(() => {
     fetchData();
 
-    const socket = new WebSocket(`${import.meta.env.VITE_WS_URL}/ws/${url}/`);
+    const socket = new WebSocket(`/ws/${url}/`);
 
     // Send token as first message — never expose it in the URL
     socket.onopen = () => {
