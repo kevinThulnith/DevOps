@@ -8,7 +8,7 @@ function useWebSocket(url, setData, fetchData) {
 
     const socket = new WebSocket(`/ws/${url}/`);
 
-    // Send token as first message — never expose it in the URL
+    // TODO: Send token as first message — never expose it in the URL
     socket.onopen = () => {
       const token = localStorage.getItem("access");
       socket.send(JSON.stringify({ type: "authenticate", token }));
