@@ -125,7 +125,7 @@ built around:
 | Prometheus                | Metrics scraping and storage                            |
 | Grafana                   | Metrics dashboards                                      |
 | Loki + Promtail           | Log aggregation and shipping                            |
-| GitHub Actions            | CI/CD pipelines                                         |
+| GitHub Actions            | CI/CD pipelines (build -> test -> push) _main branch_   |
 
 ## System Architecture
 
@@ -273,19 +273,19 @@ This project uses Docker Compose to define and run multi-container Docker applic
 
 ### Services
 
-| Service           | Image                        | Port | Description                                 |
-| ----------------- | ---------------------------- | ---- | ------------------------------------------- |
-| Database          | `postgres:14-alpine`         | 5432 | PostgreSQL database with persistent storage |
-| Redis             | `redis:7-alpine`             | 6379 | In-memory cache (LRU eviction, AOF enabled) |
-| Backend           | Custom (Django)              | 8000 | Django REST API served by Daphne (ASGI)     |
-| Frontend          | Custom (Vite/React)          | —    | One-shot builder; outputs static assets     |
-| Proxy             | Custom (Nginx)               | 80   | Reverse proxy serving frontend & API routes |
-| Prometheus        | `prom/prometheus:v2.52.0`    | 9090 | Metrics scraping and storage                |
-| Grafana           | `grafana/grafana-oss:11.0.0` | 3000 | Metrics dashboards (via `/grafana/`)        |
-| Loki              | `grafana/loki:3.0.0`         | 3100 | Log aggregation                             |
-| Promtail          | `grafana/promtail:3.0.0`     | —    | Log shipper from backend logs to Loki       |
-| Postgres Exporter | —                            | —    | Exposes Postgres metrics to Prometheus      |
-| Redis Exporter    | —                            | —    | Exposes Redis metrics to Prometheus         |
+| Service           | Image                                           | Port | Description                                 |
+| ----------------- | ----------------------------------------------- | ---- | ------------------------------------------- |
+| Database          | `postgres:14-alpine`                            | 5432 | PostgreSQL database with persistent storage |
+| Redis             | `redis:7-alpine`                                | 6379 | In-memory cache (LRU eviction, AOF enabled) |
+| Backend           | Custom (Django)                                 | 8000 | Django REST API served by Daphne (ASGI)     |
+| Frontend          | Custom (Vite/React)                             | —    | One-shot builder; outputs static assets     |
+| Proxy             | Custom (Nginx)                                  | 80   | Reverse proxy serving frontend & API routes |
+| Prometheus        | `prom/prometheus:v2.52.0`                       | 9090 | Metrics scraping and storage                |
+| Grafana           | `grafana/grafana-oss:11.0.0`                    | 3000 | Metrics dashboards (via `/grafana/`)        |
+| Loki              | `grafana/loki:3.0.0`                            | 3100 | Log aggregation                             |
+| Promtail          | `grafana/promtail:3.0.0`                        | —    | Log shipper from backend logs to Loki       |
+| Postgres Exporter | `prometheuscommunity/postgres-exporter:v0.15.0` | —    | Exposes Postgres metrics to Prometheus      |
+| Redis Exporter    | `oliver006/redis_exporter:v1.61.0-alpine`       | —    | Exposes Redis metrics to Prometheus         |
 
 ### Prerequisites
 
@@ -298,7 +298,7 @@ Run this to bring the stack up:
 docker-compose --env-file .env up --build -d
 
 # View logs
-docker compose logs -f
+docker-compose logs -f
 
 # Stop services
 docker-compose stop
