@@ -1,6 +1,6 @@
+from .serializers import UserSerializer, GoogleLoginSerializer, UserUpdateSerializer
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
-from .serializers import UserSerializer, GoogleLoginSerializer
 from dj_rest_auth.registration.views import SocialLoginView
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -26,6 +26,7 @@ class HealthCheckView(APIView):
     Health check endpoint for Kubernetes probes.
     Does not require authentication or ALLOWED_HOSTS validation.
     """
+
     permission_classes = [AllowAny]
 
     def get(self, request):
@@ -57,7 +58,7 @@ class UserViewSet(ModelViewSet):
 
 
 class MeView(RetrieveUpdateAPIView):
-    serializer_class = UserSerializer
+    serializer_class = UserUpdateSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
